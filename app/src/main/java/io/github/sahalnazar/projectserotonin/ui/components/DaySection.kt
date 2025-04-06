@@ -23,7 +23,7 @@ fun DaySection(
     section: TimeWiseSupplementsToConsume,
     contentPadding: PaddingValues,
     onConsume: (String, RichSnackbarData) -> Unit,
-    onRemove: (String) -> Unit,
+    onRemove: (String, String) -> Unit,
 ) {
     Surface(
         color = getBgColorAccordingTo(section.code),

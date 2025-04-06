@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.sahalnazar.projectserotonin.data.model.local.RemoveConsumptionData
 import io.github.sahalnazar.projectserotonin.data.model.local.RichSnackbarVisuals
 import io.github.sahalnazar.projectserotonin.ui.components.DaySection
 import io.github.sahalnazar.projectserotonin.ui.components.ErrorComponent
@@ -41,10 +42,11 @@ import io.github.sahalnazar.projectserotonin.utils.UiState
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
     val uiState by viewModel.itemsState.collectAsStateWithLifecycle()
-    var idToRemoveConsumption by remember { mutableStateOf<String?>(null) }
+    var removeConsumptionData by remember { mutableStateOf<RemoveConsumptionData?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
+        viewModel.loadItems()
         viewModel.toastMessage.collect { data ->
             data?.let {
                 val visuals = RichSnackbarVisuals(
@@ -109,27 +111,28 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel()) {
                                 section = section,
                                 contentPadding = contentPadding,
                                 onConsume = viewModel::addConsumption,
-                                onRemove = { id ->
-                                    idToRemoveConsumption = id
+                                onRemove = { id, previousTimestamp ->
+                                    removeConsumptionData =
+                                        RemoveConsumptionData(id, previousTimestamp)
                                 }
                             )
                         }
                     }
                 }
             }
-            if (idToRemoveConsumption != null) {
+            removeConsumptionData?.let {
                 AlertDialog(
-                    onDismissRequest = { idToRemoveConsumption = null },
+                    onDismissRequest = { removeConsumptionData = null },
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                idToRemoveConsumption?.let(viewModel::deleteConsumption)
-                                idToRemoveConsumption = null
+                                viewModel.deleteConsumption(it.id, it.previousTimestamp)
+                                removeConsumptionData = null
                             }
                         ) { Text("Confirm") }
                     },
                     dismissButton = {
-                        TextButton(onClick = { idToRemoveConsumption = null }) {
+                        TextButton(onClick = { removeConsumptionData = null }) {
                             Text("Cancel")
                         }
                     },

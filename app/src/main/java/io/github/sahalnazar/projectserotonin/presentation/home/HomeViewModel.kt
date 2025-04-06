@@ -7,11 +7,11 @@ import io.github.sahalnazar.projectserotonin.data.model.local.RichSnackbarData
 import io.github.sahalnazar.projectserotonin.data.model.local.TimeWiseSupplementsToConsume
 import io.github.sahalnazar.projectserotonin.data.repository.SupplementsRepository
 import io.github.sahalnazar.projectserotonin.utils.UiState
+import io.github.sahalnazar.projectserotonin.utils.getCurrentTimestamp
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,23 +28,16 @@ class HomeViewModel @Inject constructor(
     private val _toastMessage = Channel<RichSnackbarData?>(Channel.BUFFERED)
     val toastMessage = _toastMessage.receiveAsFlow()
 
-    init {
-        loadItems()
-    }
-
     fun loadItems() {
         viewModelScope.launch {
-            _itemsState.value = UiState.Loading
-            try {
-                repository.getItemsToConsume(userId)
+            repository.getItemsToConsume(userId).collect { result ->
+                result
                     .onSuccess { items ->
-                        _itemsState.value = UiState.Success(items ?: emptyList())
+                        _itemsState.value = UiState.Success(items)
                     }
                     .onFailure { e ->
                         _itemsState.value = UiState.Error("Error: ${e.message}")
                     }
-            } catch (e: Exception) {
-                _itemsState.value = UiState.Error("Error: ${e.message}")
             }
         }
     }
@@ -52,54 +45,26 @@ class HomeViewModel @Inject constructor(
     fun addConsumption(id: String, richSnackbarData: RichSnackbarData) =
         updateItem(id, true, richSnackbarData)
 
-    fun deleteConsumption(id: String) = updateItem(id, false)
+    fun deleteConsumption(id: String, previousTimestamp: String) =
+        updateItem(id, false, previousTimestamp = previousTimestamp)
 
     private fun updateItem(
         id: String,
         consumed: Boolean,
-        richSnackbarData: RichSnackbarData? = null
+        richSnackbarData: RichSnackbarData? = null,
+        previousTimestamp: String? = null
     ) {
-        // Update local state first
-        val previousState = _itemsState.value
-        updateLocalState(id, consumed)
-
-        // Then sync with remote
         viewModelScope.launch {
             try {
-                val result = if (consumed) {
-                    repository.addConsumption(userId, id)
-                } else {
-                    repository.deleteConsumption(userId, id)
-                }
-
+                val timestamp = if (consumed) getCurrentTimestamp() else previousTimestamp
+                val result = repository.updateConsumption(userId, id, consumed, timestamp.orEmpty())
                 result.onSuccess {
                     _toastMessage.trySend(richSnackbarData)
                 }.onFailure { e ->
-                    _itemsState.value = previousState
                     _toastMessage.trySend(RichSnackbarData(null, "Error: $e", null, null, true))
                 }
             } catch (e: Exception) {
-                _itemsState.value = previousState
                 _toastMessage.trySend(RichSnackbarData(null, "Error: $e", null, null, true))
-            }
-        }
-    }
-
-    private fun updateLocalState(id: String, consumed: Boolean) {
-        _itemsState.update { currentState ->
-            when (currentState) {
-                is UiState.Success -> {
-                    UiState.Success(currentState.data.map { section ->
-                        section?.copy(supplements = section.supplements?.map { item ->
-                            if (item.id == id) {
-                                item.copy(isConsumed = consumed)
-                            } else {
-                                item
-                            }
-                        })
-                    })
-                }
-                else -> currentState
             }
         }
     }

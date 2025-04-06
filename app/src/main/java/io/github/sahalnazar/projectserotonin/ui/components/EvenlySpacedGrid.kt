@@ -21,7 +21,7 @@ import io.github.sahalnazar.projectserotonin.utils.getTextColorAccordingTo
 fun EvenlySpacedGrid(
     section: TimeWiseSupplementsToConsume,
     onConsume: (String, RichSnackbarData) -> Unit,
-    onRemove: (String) -> Unit
+    onRemove: (String, String) -> Unit
 ) {
     val items = section.supplements.orEmpty()
     val maxItemsPerRow = 4
@@ -65,7 +65,12 @@ fun EvenlySpacedGrid(
                                         )
                                     )
                                 },
-                                onRemove = { onRemove(itemId) }
+                                onRemove = {
+                                    onRemove(
+                                        itemId,
+                                        item.lastConsumedTimestamp.orEmpty()
+                                    )
+                                }
                             )
 
                             Text(

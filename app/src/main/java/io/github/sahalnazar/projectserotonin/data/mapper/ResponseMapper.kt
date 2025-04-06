@@ -1,5 +1,6 @@
 package io.github.sahalnazar.projectserotonin.data.mapper
 
+import io.github.sahalnazar.projectserotonin.data.db.SupplementEntity
 import io.github.sahalnazar.projectserotonin.data.model.local.Supplement
 import io.github.sahalnazar.projectserotonin.data.model.local.TimeWiseSupplementsToConsume
 import io.github.sahalnazar.projectserotonin.data.model.remote.MainResponse
@@ -26,4 +27,48 @@ object ResponseMapper {
             )
         }
     }
+
+    fun List<TimeWiseSupplementsToConsume?>?.toSupplementEntity() =
+        this
+            ?.filterNotNull()
+            ?.flatMap { timeWise ->
+                timeWise.supplements?.mapNotNull { supp ->
+                    supp.id?.let {
+                        SupplementEntity(
+                            id = it,
+                            name = supp.name,
+                            image = supp.image,
+                            isPaused = supp.isPaused,
+                            servingSize = supp.servingSize,
+                            lastConsumedTimestamp = supp.lastConsumedTimestamp,
+                            isConsumed = supp.isConsumed,
+                            snackbarTitle = supp.snackbarTitle,
+                            snackbarDescription = supp.snackbarDescription,
+                            timeCode = timeWise.code ?: "",
+                            timeTitle = timeWise.title
+                        )
+                    }
+                } ?: emptyList()
+            } ?: emptyList()
+
+    fun Map<String, List<SupplementEntity>>.toTimeWiseSupplementsToConsume() =
+        map { (code, supplements) ->
+            TimeWiseSupplementsToConsume(
+                code = code,
+                title = supplements.firstOrNull()?.timeTitle,
+                supplements = supplements.map {
+                    Supplement(
+                        id = it.id,
+                        name = it.name,
+                        image = it.image,
+                        isPaused = it.isPaused,
+                        servingSize = it.servingSize,
+                        lastConsumedTimestamp = it.lastConsumedTimestamp,
+                        isConsumed = it.isConsumed,
+                        snackbarTitle = it.snackbarTitle,
+                        snackbarDescription = it.snackbarDescription
+                    )
+                }
+            )
+        }
 }

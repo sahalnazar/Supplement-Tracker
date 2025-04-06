@@ -2,6 +2,9 @@ package io.github.sahalnazar.projectserotonin.utils
 
 import androidx.compose.ui.graphics.Color
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -25,4 +28,11 @@ fun getCurrentDateTime(): Pair<String, String> {
     val date = SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date())
     val time = SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
     return date to time
+}
+
+fun getCurrentTimestamp(): String {
+    val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+    return Instant.now()
+        .atOffset(ZoneOffset.UTC)
+        .format(formatter)
 }

@@ -1,11 +1,16 @@
 package io.github.sahalnazar.projectserotonin.di
 
+import android.content.Context
+import androidx.room.Room
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.sahalnazar.projectserotonin.data.api.ApiService
+import io.github.sahalnazar.projectserotonin.data.db.AppDatabase
+import io.github.sahalnazar.projectserotonin.data.db.SupplementsDao
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -39,4 +44,20 @@ object AppModule {
     @Provides
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService = retrofit.create(ApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "supplements_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSupplementsDao(database: AppDatabase): SupplementsDao {
+        return database.supplementsDao()
+    }
 }
