@@ -1,4 +1,4 @@
-package io.github.sahalnazar.projectserotonin.data.model
+package io.github.sahalnazar.projectserotonin.data.model.local
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarVisuals

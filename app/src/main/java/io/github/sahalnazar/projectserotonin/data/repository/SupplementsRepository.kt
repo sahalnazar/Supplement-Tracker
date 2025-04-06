@@ -2,7 +2,8 @@ package io.github.sahalnazar.projectserotonin.data.repository
 
 import android.util.Log
 import io.github.sahalnazar.projectserotonin.data.api.ApiService
-import io.github.sahalnazar.projectserotonin.data.model.MainResponse
+import io.github.sahalnazar.projectserotonin.data.mapper.ResponseMapper.toTimeWiseSupplementsToConsume
+import io.github.sahalnazar.projectserotonin.data.model.local.TimeWiseSupplementsToConsume
 import io.github.sahalnazar.projectserotonin.utils.getCurrentDateTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -11,11 +12,12 @@ import javax.inject.Inject
 class SupplementsRepository @Inject constructor(
     private val apiService: ApiService
 ) {
-    suspend fun getItemsToConsume(userId: String): Result<List<MainResponse.Data.ItemsToConsume?>?> =
+
+    suspend fun getItemsToConsume(userId: String): Result<List<TimeWiseSupplementsToConsume?>?> =
         withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getItemsToConsume(userId)
-                Result.success(response.data?.itemsToConsume)
+                Result.success(response.data?.itemsToConsume?.toTimeWiseSupplementsToConsume())
             } catch (e: Exception) {
                 Log.e("getItemsToConsume error", "Error getting items to consume")
                 Result.failure(e)

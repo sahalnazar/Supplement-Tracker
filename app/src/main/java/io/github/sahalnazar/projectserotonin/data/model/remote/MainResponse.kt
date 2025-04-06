@@ -1,4 +1,4 @@
-package io.github.sahalnazar.projectserotonin.data.model
+package io.github.sahalnazar.projectserotonin.data.model.remote
 
 
 import kotlinx.serialization.SerialName
@@ -177,7 +177,6 @@ data class MainResponse(
                     data class Regimen(
                         @SerialName("canEdit")
                         val canEdit: Boolean? = null,
-
                         @SerialName("description")
                         val description: String? = null,
                         @SerialName("fillPct")

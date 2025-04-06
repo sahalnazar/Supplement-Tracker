@@ -13,17 +13,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.github.sahalnazar.projectserotonin.data.model.MainResponse
-import io.github.sahalnazar.projectserotonin.data.model.RichSnackbarData
+import io.github.sahalnazar.projectserotonin.data.model.local.RichSnackbarData
+import io.github.sahalnazar.projectserotonin.data.model.local.TimeWiseSupplementsToConsume
 import io.github.sahalnazar.projectserotonin.utils.getTextColorAccordingTo
 
 @Composable
 fun EvenlySpacedGrid(
-    section: MainResponse.Data.ItemsToConsume,
+    section: TimeWiseSupplementsToConsume,
     onConsume: (String, RichSnackbarData) -> Unit,
     onRemove: (String) -> Unit
 ) {
-    val items = section.items?.filterNotNull().orEmpty()
+    val items = section.supplements.orEmpty()
     val maxItemsPerRow = 4
     val rows = items.chunked(maxItemsPerRow)
 
@@ -34,48 +34,43 @@ fun EvenlySpacedGrid(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 rowItems.forEach { item ->
-                    val itemId = item.product?.id
+                    val itemId = item.id
                     if (itemId != null) {
                         Column(
                             modifier = Modifier.weight(1f),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
+                            val servingSize = item.servingSize?.toString() ?: "0"
                             SupplementPill(
-                                isPaused = item.product.regimen?.status == "PAUSED",
-                                isConsumed = item.product.consumed == true,
-                                image = item.product.image.orEmpty(),
-                                name = item.product.name,
-                                serving = item.product.regimen?.servingSize?.toString() ?: "0",
+                                isPaused = item.isPaused,
+                                isConsumed = item.isConsumed,
+                                image = item.image.orEmpty(),
+                                name = item.name,
+                                serving = servingSize,
                                 onConsume = {
-                                    val title = item.product.regimen?.name?.let {
+                                    val title = item.snackbarTitle?.let {
                                         "Got your $it today!"
                                     }
-                                    val description = item.product.regimen?.description?.let {
+                                    val description = item.snackbarDescription?.let {
                                         "TIP: $it"
                                     }
                                     onConsume(
                                         itemId, RichSnackbarData(
                                             title = title,
                                             description = description,
-                                            image = item.product.image,
-                                            serving = item.product.regimen?.servingSize?.toString(),
+                                            image = item.image,
+                                            serving = servingSize,
                                             isError = false
                                         )
                                     )
                                 },
-                                onRemove = { onRemove(itemId) },
-
-                                )
-
-                            val dosage = item.latestConsumption?.dosage
-                            val unit = item.latestConsumption?.unit
-                            val time = item.latestConsumption?.time
-                            val latestConsumption = dosage?.let { "$dosage $unit\n$time" }.orEmpty()
+                                onRemove = { onRemove(itemId) }
+                            )
 
                             Text(
                                 textAlign = TextAlign.Center,
-                                text = latestConsumption,
+                                text = item.getLastConsumedDateTime(),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = getTextColorAccordingTo(section.code),
                                 maxLines = 2,

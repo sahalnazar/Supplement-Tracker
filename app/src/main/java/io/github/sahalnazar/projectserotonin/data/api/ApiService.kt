@@ -1,6 +1,6 @@
 package io.github.sahalnazar.projectserotonin.data.api
 
-import io.github.sahalnazar.projectserotonin.data.model.MainResponse
+import io.github.sahalnazar.projectserotonin.data.model.remote.MainResponse
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST

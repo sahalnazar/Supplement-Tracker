@@ -27,11 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.sahalnazar.projectserotonin.data.model.RichSnackbarVisuals
+import io.github.sahalnazar.projectserotonin.data.model.local.RichSnackbarVisuals
 import io.github.sahalnazar.projectserotonin.ui.components.DaySection
 import io.github.sahalnazar.projectserotonin.ui.components.ErrorComponent
 import io.github.sahalnazar.projectserotonin.ui.components.LoadingComponent

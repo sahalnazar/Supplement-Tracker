@@ -3,8 +3,8 @@ package io.github.sahalnazar.projectserotonin.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.sahalnazar.projectserotonin.data.model.MainResponse.Data.ItemsToConsume
-import io.github.sahalnazar.projectserotonin.data.model.RichSnackbarData
+import io.github.sahalnazar.projectserotonin.data.model.local.RichSnackbarData
+import io.github.sahalnazar.projectserotonin.data.model.local.TimeWiseSupplementsToConsume
 import io.github.sahalnazar.projectserotonin.data.repository.SupplementsRepository
 import io.github.sahalnazar.projectserotonin.utils.UiState
 import kotlinx.coroutines.channels.Channel
@@ -21,7 +21,8 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
     private val userId = "65fc6b26903c19785332f6cc"
 
-    private val _itemsState = MutableStateFlow<UiState<List<ItemsToConsume?>>>(UiState.Loading)
+    private val _itemsState =
+        MutableStateFlow<UiState<List<TimeWiseSupplementsToConsume?>>>(UiState.Loading)
     val itemsState = _itemsState.asStateFlow()
 
     private val _toastMessage = Channel<RichSnackbarData?>(Channel.BUFFERED)
@@ -75,11 +76,11 @@ class HomeViewModel @Inject constructor(
                     _toastMessage.trySend(richSnackbarData)
                 }.onFailure { e ->
                     _itemsState.value = previousState
-                    _toastMessage.trySend(RichSnackbarData(null, "Error: $e", null,null, true))
+                    _toastMessage.trySend(RichSnackbarData(null, "Error: $e", null, null, true))
                 }
             } catch (e: Exception) {
                 _itemsState.value = previousState
-                _toastMessage.trySend(RichSnackbarData(null, "Error: $e", null, null,true))
+                _toastMessage.trySend(RichSnackbarData(null, "Error: $e", null, null, true))
             }
         }
     }
@@ -89,16 +90,15 @@ class HomeViewModel @Inject constructor(
             when (currentState) {
                 is UiState.Success -> {
                     UiState.Success(currentState.data.map { section ->
-                        section?.copy(items = section.items?.map { item ->
-                            if (item?.product?.id == id) {
-                                item.copy(product = item.product.copy(consumed = consumed))
+                        section?.copy(supplements = section.supplements?.map { item ->
+                            if (item.id == id) {
+                                item.copy(isConsumed = consumed)
                             } else {
                                 item
                             }
                         })
                     })
                 }
-
                 else -> currentState
             }
         }

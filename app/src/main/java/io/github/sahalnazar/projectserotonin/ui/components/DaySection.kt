@@ -12,15 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.sahalnazar.projectserotonin.data.model.MainResponse
-import io.github.sahalnazar.projectserotonin.data.model.RichSnackbarData
+import io.github.sahalnazar.projectserotonin.data.model.local.RichSnackbarData
+import io.github.sahalnazar.projectserotonin.data.model.local.TimeWiseSupplementsToConsume
 import io.github.sahalnazar.projectserotonin.utils.getBgColorAccordingTo
 import io.github.sahalnazar.projectserotonin.utils.getTextColorAccordingTo
 
 @Composable
 fun DaySection(
     modifier: Modifier,
-    section: MainResponse.Data.ItemsToConsume,
+    section: TimeWiseSupplementsToConsume,
     contentPadding: PaddingValues,
     onConsume: (String, RichSnackbarData) -> Unit,
     onRemove: (String) -> Unit,

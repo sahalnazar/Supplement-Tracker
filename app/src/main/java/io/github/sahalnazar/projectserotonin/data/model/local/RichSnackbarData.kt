@@ -1,4 +1,4 @@
-package io.github.sahalnazar.projectserotonin.data.model
+package io.github.sahalnazar.projectserotonin.data.model.local
 
 data class RichSnackbarData(
     val title: String?,
